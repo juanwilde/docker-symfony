@@ -1,0 +1,61 @@
+version: '3.5'
+
+services:
+  docker-symfony-web:
+    container_name: docker-symfony-web
+    build:
+      context: ./docker/nginx
+      args:
+        UID: $U_ID
+    ports:
+      - 300:80
+    volumes:
+      - ./public:/appdata/www/public
+    networks:
+      - docker-symfony-network
+    depends_on:
+      - docker-symfony-be
+
+  docker-symfony-be:
+    container_name: docker-symfony-be
+    build:
+      context: ./docker/php
+      args:
+        UID: $U_ID
+    environment:
+      PHP_IDE_CONFIG: serverName=Docker
+      PHP_XDEBUG_ENABLED: 1
+      XDEBUG_CONFIG: remote_host=172.17.0.1 remote_port=9005 # Linux users
+#      XDEBUG_CONFIG: remote_host=host.docker.internal remote_port=9005 # MacOS users
+    volumes:
+      - ./:/appdata/www
+      - ./docker/php/xdebug-linux.ini:/usr/local/etc/php/conf.d/xdebug.ini # Linux users
+#    - ./docker/php/xdebug-macos.ini:/usr/local/etc/php/conf.d/xdebug.ini # MacOS users
+      - ~/.ssh/id_rsa:/home/appuser/.ssh/id_rsa
+    networks:
+      - docker-symfony-network
+    depends_on:
+      - docker-symfony-db
+
+  docker-symfony-db:
+    container_name: docker-symfony-db
+    image: mysql:8.0
+    ports:
+      - 40000:3306
+    environment:
+      MYSQL_DATABASE: docker_symfony_database
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root
+    command: mysqld --sql_mode="STRICT_ALL_TABLES,NO_ENGINE_SUBSTITUTION"
+    volumes:
+      - docker-symfony-database-data:/var/lib/mysql
+    networks:
+      - docker-symfony-network
+
+volumes:
+  docker-symfony-database-data:
+
+networks:
+  docker-symfony-network:
+    external: true
