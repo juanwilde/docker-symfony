@@ -12,3 +12,4 @@
 ###> Other files and folders ###
 .idea
 ###< Other files and folders ###
+*.lock
