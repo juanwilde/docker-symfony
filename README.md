@@ -56,7 +56,7 @@ composer install
 ```
 
 
-### Additional
+### Optional
 *Use dry to manage docker*: https://github.com/moncho/dry#installation
 
 ```shell
@@ -64,3 +64,8 @@ curl -sSf https://moncho.github.io/dry/dryup.sh | sudo sh
 sudo chmod 755 /usr/local/bin/dry
 ```
 
+Listen docker containers
+
+```shell
+dry
+```
